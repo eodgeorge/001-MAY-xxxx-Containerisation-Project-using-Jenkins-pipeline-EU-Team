@@ -236,13 +236,13 @@ resource "aws_security_group" "Nexus_SG" {
 }
 
 # Security Group for MySQL RDS Database
-resource "aws_security_group" "MySQL_RDS_SG" {
-  name        = "${local.name}-MySQL-RDS"
+resource "aws_security_group" "mysql_rds_sg" {
+  name        = "${local.name}-mysql-sg"
   description = "Allow inbound traffic"
   vpc_id      = aws_vpc.vpc.id
 
   ingress {
-    description      = "Allow MySQL access"
+    description      = "Allow mysql access"
     from_port        = var.port_mysql
     to_port          = var.port_mysql
     protocol         = "tcp"
@@ -257,7 +257,7 @@ resource "aws_security_group" "MySQL_RDS_SG" {
   }
 
   tags = {
-    Name = "${local.name}-MySQL-SG"
+    Name = "${local.name}-mysql-sg"
   }
 }
 
@@ -425,7 +425,7 @@ resource "aws_instance" "Docker-server" {
 }
 
 #Creating Database Subnet Group
-resource "aws_db_subnet_group" "PACPUJEU2-DB-Subnet" {
+resource "aws_db_subnet_group" "pacpujpeu2-db-subnet" {
   name                  = var.db_subnet_grp_name
   subnet_ids            = [aws_subnet.private-subnet-1.id, aws_subnet.private-subnet-2.id]
   tags = {
@@ -436,8 +436,8 @@ resource "aws_db_subnet_group" "PACPUJEU2-DB-Subnet" {
 #MySQL RDS database
 resource "aws_db_instance" "PACPUJEU2-DB"{
   identifier             = var.identifier
-  db_subnet_group_name   = aws_db_subnet_group.PACPUJEU2-DB-Subnet.name
-  vpc_security_group_ids = [aws_security_group.MySQL_RDS_SG.id]
+  db_subnet_group_name   = aws_db_subnet_group.pacpujpeu2-db-subnet.name
+  vpc_security_group_ids = [aws_security_group.mysql_rds_sg.id]
   publicly_accessible    = false
   skip_final_snapshot    = true
   allocated_storage      = 10
@@ -453,147 +453,147 @@ resource "aws_db_instance" "PACPUJEU2-DB"{
 }
 
 #Created route 53 zone
-data "aws_route53_zone" "rt53_zone" {
-  name         = "thinkeod.com"
-  private_zone = false
-}
+# data "aws_route53_zone" "rt53_zone" {
+#   name         = "thinkeod.com"
+#   private_zone = false
+# }
 
-#Create route 53 record 
-resource "aws_route53_record" "thinkeod" {
-  zone_id = data.aws_route53_zone.rt53_zone.zone_id
-  name    = "thinkeod.com"
-  type    = "A"
-  alias {
-    name                   = aws_lb.alb.dns_name
-    zone_id                = aws_lb.alb.zone_id
-    evaluate_target_health = true
-  }
-}
+# #Create route 53 record 
+# resource "aws_route53_record" "thinkeod" {
+#   zone_id = data.aws_route53_zone.rt53_zone.zone_id
+#   name    = "thinkeod.com"
+#   type    = "A"
+#   alias {
+#     name                   = aws_lb.alb.dns_name
+#     zone_id                = aws_lb.alb.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
-# create ACM certificate
-resource "aws_acm_certificate" "acm_certificate" {
-  domain_name       = "thinkeod.com"
-  # subject_alternative_names = ["*.thinkeod.com"]
-  validation_method = "DNS"
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+# # create ACM certificate
+# resource "aws_acm_certificate" "acm_certificate" {
+#   domain_name       = "thinkeod.com"
+#   # subject_alternative_names = ["*.thinkeod.com"]
+#   validation_method = "DNS"
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-#create route53 validation record
-resource "aws_route53_record" "validation_record" {
-  for_each = {
-    for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = data.aws_route53_zone.rt53_zone.zone_id
-}
+# #create route53 validation record
+# resource "aws_route53_record" "validation_record" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.acm_certificate.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = data.aws_route53_zone.rt53_zone.zone_id
+# }
 
-#create acm certificate validition
-resource "aws_acm_certificate_validation" "acm_certificate_validation" {
-  certificate_arn         = aws_acm_certificate.acm_certificate.arn
-  validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
-}
+# #create acm certificate validition
+# resource "aws_acm_certificate_validation" "acm_certificate_validation" {
+#   certificate_arn         = aws_acm_certificate.acm_certificate.arn
+#   validation_record_fqdns = [for record in aws_route53_record.validation_record : record.fqdn]
+# }
 
 # Created Application Load balancer
-resource "aws_lb" "alb" {
-  name               = "alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.Docker_SG.id]
-  subnets            = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id]
-  enable_deletion_protection = false
-  tags = {
-  Name = "${local.name}-alb"  
-  }
-}
+# resource "aws_lb" "alb" {
+#   name               = "alb"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = [aws_security_group.Docker_SG.id]
+#   subnets            = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id]
+#   enable_deletion_protection = false
+#   tags = {
+#   Name = "${local.name}-alb"  
+#   }
+# }
   
 # Creating Load balancer Listener for http
-resource "aws_lb_listener" "pacpujpeu2_lb_listener" {
-  load_balancer_arn      = aws_lb.alb.arn
-  port                   = "80"
-  protocol               = "HTTP"
-  default_action {
-    type                 = "forward"
-    target_group_arn     = aws_lb_target_group.target_group.arn
-    }
-  }
+# resource "aws_lb_listener" "pacpujpeu2_lb_listener" {
+#   load_balancer_arn      = aws_lb.alb.arn
+#   port                   = "80"
+#   protocol               = "HTTP"
+#   default_action {
+#     type                 = "forward"
+#     target_group_arn     = aws_lb_target_group.target_group.arn
+#     }
+#   }
   
 # Creating a Load balancer Listener for https access
-resource "aws_lb_listener" "pacpujpeu2_lb_listener_https" {
-  load_balancer_arn      = aws_lb.alb.arn
-  port                   = "443"
-  protocol               = "HTTPS"
-  ssl_policy             = "ELBSecurityPolicy-2016-08"
-  certificate_arn        = "${aws_acm_certificate.acm_certificate.arn}"
-  default_action {
-    type                 = "forward"
-    target_group_arn     = aws_lb_target_group.target_group.arn
-  }
-}
+# resource "aws_lb_listener" "pacpujpeu2_lb_listener_https" {
+#   load_balancer_arn      = aws_lb.alb.arn
+#   port                   = "443"
+#   protocol               = "HTTPS"
+#   ssl_policy             = "ELBSecurityPolicy-2016-08"
+#   certificate_arn        = "${aws_acm_certificate.acm_certificate.arn}"
+#   default_action {
+#     type                 = "forward"
+#     target_group_arn     = aws_lb_target_group.target_group.arn
+#   }
+# }
   
 # Create Autoscaling group
-resource "aws_autoscaling_group" "asg" {
-  name                      = "PACPUJEU2-asg"
-  desired_capacity          = 2
-  max_size                  = 5
-  min_size                  = 1
-  health_check_grace_period = 120
-  health_check_type         = "EC2"
-  force_delete              = true
-  launch_configuration      = aws_launch_configuration.launch-config.name
-  vpc_zone_identifier       = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id]
-  target_group_arns         = ["${aws_lb_target_group.target_group.arn}"]
-  tag {
-    key                 = "Name"
-    value               = "${local.name}-asg"
-    propagate_at_launch = true
-  }
-}
+# resource "aws_autoscaling_group" "asg" {
+#   name                      = "PACPUJEU2-asg"
+#   desired_capacity          = 2
+#   max_size                  = 5
+#   min_size                  = 1
+#   health_check_grace_period = 120
+#   health_check_type         = "EC2"
+#   force_delete              = true
+#   launch_configuration      = aws_launch_configuration.launch-config.name
+#   vpc_zone_identifier       = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id]
+#   target_group_arns         = ["${aws_lb_target_group.target_group.arn}"]
+#   tag {
+#     key                 = "Name"
+#     value               = "${local.name}-asg"
+#     propagate_at_launch = true
+#   }
+# }
 
 # create Autoscaling group policy
-resource "aws_autoscaling_policy" "PACPUJEU2-asg-pol" {
-  name                   = "PACPUJEU2-asg-pol"
-  policy_type            = "TargetTrackingScaling"
-  adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = aws_autoscaling_group.asg.name
-  target_tracking_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ASGAverageCPUUtilization"
-    }
-    target_value = 70.0
-  }
-} 
+# resource "aws_autoscaling_policy" "PACPUJEU2-asg-pol" {
+#   name                   = "PACPUJEU2-asg-pol"
+#   policy_type            = "TargetTrackingScaling"
+#   adjustment_type        = "ChangeInCapacity"
+#   autoscaling_group_name = aws_autoscaling_group.asg.name
+#   target_tracking_configuration {
+#     predefined_metric_specification {
+#       predefined_metric_type = "ASGAverageCPUUtilization"
+#     }
+#     target_value = 70.0
+#   }
+# } 
 
 # Creating Target Group
-resource "aws_lb_target_group" "target_group" {
-  name_prefix      = "alb-tg"
-  port             = 8080
-  protocol         = "HTTP"
-  vpc_id           = aws_vpc.vpc.id
+# resource "aws_lb_target_group" "target_group" {
+#   name_prefix      = "alb-tg"
+#   port             = 8080
+#   protocol         = "HTTP"
+#   vpc_id           = aws_vpc.vpc.id
 
-  health_check {
-    interval            = 30
-    timeout             = 5
-    healthy_threshold   = 3
-    unhealthy_threshold = 5
-  }
-}
+#   health_check {
+#     interval            = 30
+#     timeout             = 5
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 5
+#   }
+# }
   
 #Create Target group attachment
-resource "aws_lb_target_group_attachment" "target_group_attach" {
-  target_group_arn = aws_lb_target_group.target_group.arn
-  target_id        = aws_instance.Docker-server.id
-  port             = 8080
-}
+# resource "aws_lb_target_group_attachment" "target_group_attach" {
+#   target_group_arn = aws_lb_target_group.target_group.arn
+#   target_id        = aws_instance.Docker-server.id
+#   port             = 8080
+# }
 
 #launch configuration
 resource "aws_launch_configuration" "launch-config" {

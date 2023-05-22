@@ -120,10 +120,6 @@ variable "private_keypair_path" {
     default = "ami-05b457b541faec0ca"
   }
 
-  variable "instance_type2" {
-    default = "t2.medium"
-  }
-
   #Database name
   variable "db_name"{
     description = "database name"
