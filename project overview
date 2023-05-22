@@ -1,0 +1,18 @@
+Containerization-Project-Using-Jenkins-Pipeline-01st-May
+The objective of this project is to create and deploy a containerized Java Application using Jenkins Pipeline in a highly available and scalable, self-healing environment using AWS platform.
+
+TECH STACK:
+AWS- Cloud Infrastructure Provider
+Terraform – Infrastructure as Code (IAC) used to automate provisioning of our infrastructure.
+Github - Version Control systems, as our Repository.
+Jenkins – CICD pipeline tool. This is the automation server that pulls source code from GitHub repo, builds it using Maven tool, sends the codes to sonarqube for test and responsible for all the related process until deployment of the application in the docker.
+SonarQube – Code Validating tool which inspects code quality and security vulnerabilities.
+Ansible – Configuration management tool which configures our application host as well as deploy our application with the help of playbooks.
+Docker – Containerization tool which converts our artifact into an image with the help of Dockerfile and creates a container that will host the application. 
+Bastion Host - Jump box used to ssh into the servers in the private subnet. This creates a level of security for access into resources in the private subnet.
+Nexus Server - repository which is responsible for storage of the artifacts from Jenkins.
+Docker Hub - repository for storage of Docker images 
+Visual Studio Code – Source code editor with support for integrated development environment tool (IDE)
+Jira - Agile project Management software.
+Slack – Instant messaging and collaboration.
+Newrelic – Monitoring tool
