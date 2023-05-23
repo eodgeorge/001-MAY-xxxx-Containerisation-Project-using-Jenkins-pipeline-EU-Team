@@ -22,3 +22,8 @@ output "sonaque_server_ip" {
 output "jenkins_server_ip" {
  value = aws_instance.jenkins-server.public_ip
 }
+
+# docker server alb
+output "docker-dns" {
+ value = aws_lb.alb.dns_name
+}

@@ -2,11 +2,12 @@ locals {
   ansible_user_data = <<-EOF
 #!/bin/bash
 sudo yum update -y
-sudo yum install wget -y
-wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-sudo yum install epel-release-latest-7.noacrch.rpm -y
-sudo yum update -y
-sudo yum install git python python-deve1 python-pip ansible -y
+sudo dnf install -y ansible-core
+#sudo yum install wget -y
+#wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#sudo yum install epel-release-latest-7.noacrch.rpm -y
+#sudo yum update -y
+#sudo yum install git python python-deve1 python-pip ansible -y
 sudo yum install -y yum utils
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 sudo yum install docker-ce -y
