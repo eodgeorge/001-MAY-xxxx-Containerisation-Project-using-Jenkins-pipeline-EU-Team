@@ -28,7 +28,7 @@ ansible_ssh_common_args='-o UserKnownHostsFile=/dev/null -o StrictHostKeyCheckin
 localhost ansible_connection=local
 
 [docker_host]
-${aws_instance.Docker-server.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/pacpujpeu2
+${aws_instance.Docker-server.private_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/pacpujpeu2
 EOT
 sudo mkdir /opt/docker
 echo "${file(var.newrelicfile)}" >> /opt/docker/newrelic.yml
@@ -137,5 +137,6 @@ echo "license_key: eu01xxcf86aa28715cf86eff270da689155bNRAL" | sudo tee -a /etc/
 sudo curl -o /etc/yum.repos.d/newrelic-infra.repo https://download.newrelic.com/infrastructure_agent/linux/yum/el/7/x86_64/newrelic-infra.repo
 sudo yum -q makecache -y --disablerepo='*' --enablerepo='newrelic-infra'
 sudo yum install newrelic-infra -y --nobest
+sudo hostnamectl set-hostname ansible
 EOF
 }
