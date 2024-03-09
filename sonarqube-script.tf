@@ -12,7 +12,7 @@ sudo bash -c 'echo "
 sonarqube   -   nofile   65536
 sonarqube   -   nproc    4096" >> /etc/security/limits.conf'
 echo "***********Install Java JDK***********"
-sudo apt install openjdk-11-jdk -y
+#sudo apt install openjdk-11-jdk -y
 echo "***********Install PostgreSQL***********"
 echo "***********The version of postgres currenlty is 14.5 which is not supported so we have to download v12***********"
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
